@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SaveAI Pro - Smart Savings Calculator</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <div class="bg-animation"></div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Onboarding -->
+    <div class="onboarding-overlay" id="onboardingOverlay">
+      <div class="onboarding-card">
+        <div class="onboarding-progress">
+          <div class="onboarding-dot active" data-step="1"></div>
+          <div class="onboarding-dot" data-step="2"></div>
+          <div class="onboarding-dot" data-step="3"></div>
+        </div>
+
+        <!-- Step 1: Welcome -->
+        <div class="onboarding-step active" data-step="1">
+          <div class="onboarding-icon">🚀</div>
+          <h2 class="onboarding-title">Welcome to SaveAI Pro!</h2>
+          <p class="onboarding-text">
+            Your intelligent savings companion with multi-currency support.
+            Let's set up your account in just a few steps.
+          </p>
+          <button
+            class="btn btn-primary btn-full"
+            onclick="nextOnboardingStep()"
+          >
+            Get Started <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <!-- Step 2: Currency -->
+        <div class="onboarding-step" data-step="2">
+          <div class="onboarding-icon">💱</div>
+          <h2 class="onboarding-title">Choose Your Currency</h2>
+          <p class="onboarding-text">
+            Select your primary currency. Don't worry, you can add income in
+            other currencies too!
+          </p>
+          <div class="form-group">
+            <div class="currency-options-grid">
+              <button
+                class="currency-btn-large active"
+                data-currency="USD"
+                onclick="selectOnboardingCurrency('USD')"
+              >
+                <span class="currency-flag">🇺🇸</span>
+                <span class="currency-code">USD</span>
+                <span class="currency-name">US Dollar</span>
+              </button>
+              <button
+                class="currency-btn-large"
+                data-currency="EUR"
+                onclick="selectOnboardingCurrency('EUR')"
+              >
+                <span class="currency-flag">🇪🇺</span>
+                <span class="currency-code">EUR</span>
+                <span class="currency-name">Euro</span>
+              </button>
+              <button
+                class="currency-btn-large"
+                data-currency="PLN"
+                onclick="selectOnboardingCurrency('PLN')"
+              >
+                <span class="currency-flag">🇵🇱</span>
+                <span class="currency-code">PLN</span>
+                <span class="currency-name">Polish Złoty</span>
+              </button>
+              <button
+                class="currency-btn-large"
+                data-currency="GBP"
+                onclick="selectOnboardingCurrency('GBP')"
+              >
+                <span class="currency-flag">🇬🇧</span>
+                <span class="currency-code">GBP</span>
+                <span class="currency-name">British Pound</span>
+              </button>
+            </div>
+          </div>
+          <div class="onboarding-buttons">
+            <button class="btn btn-secondary" onclick="prevOnboardingStep()">
+              <i class="fas fa-arrow-left"></i> Back
+            </button>
+            <button class="btn btn-primary" onclick="nextOnboardingStep()">
+              Continue <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 3: Income -->
+        <div class="onboarding-step" data-step="3">
+          <div class="onboarding-icon">💰</div>
+          <h2 class="onboarding-title">Your Daily Income</h2>
+          <p class="onboarding-text">
+            Tell us your average daily income so we can calculate savings
+            recommendations.
+          </p>
+          <div class="form-group">
+            <input
+              type="number"
+              class="form-input form-input-large"
+              id="onboardingIncome"
+              placeholder="Enter your daily income..."
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label text-center">Savings Goal (%)</label>
+            <input
+              type="range"
+              id="onboardingSavingsRate"
+              min="5"
+              max="50"
+              value="20"
+              class="range-input"
+              oninput="updateSavingsRateLabel()"
+            />
+            <div class="range-value">
+              <span id="savingsRateLabel">20%</span>
+            </div>
+          </div>
+          <div class="onboarding-buttons">
+            <button class="btn btn-secondary" onclick="prevOnboardingStep()">
+              <i class="fas fa-arrow-left"></i> Back
+            </button>
+            <button class="btn btn-success" onclick="completeOnboarding()">
+              <i class="fas fa-check"></i> Start Saving!
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-container">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="logo">
+          <div class="logo-icon">
+            <i class="fas fa-robot"></i>
+          </div>
+          <span class="logo-text">SaveAI</span>
+          <span class="logo-badge">PRO</span>
+        </div>
+
+        <div class="currency-selector">
+          <div class="currency-label">Currency</div>
+          <div class="currency-options" id="currencyOptions">
+            <button
+              class="currency-btn active"
+              data-currency="USD"
+              onclick="setCurrency('USD')"
+            >
+              <span class="flag">🇺🇸</span> USD
+            </button>
+            <button
+              class="currency-btn"
+              data-currency="EUR"
+              onclick="setCurrency('EUR')"
+            >
+              <span class="flag">🇪🇺</span> EUR
+            </button>
+            <button
+              class="currency-btn"
+              data-currency="PLN"
+              onclick="setCurrency('PLN')"
+            >
+              <span class="flag">🇵🇱</span> PLN
+            </button>
+            <button
+              class="currency-btn"
+              data-currency="GBP"
+              onclick="setCurrency('GBP')"
+            >
+              <span class="flag">🇬🇧</span> GBP
+            </button>
+          </div>
+        </div>
+
+        <nav class="nav-section">
+          <div class="nav-label">Overview</div>
+          <div class="nav-item active" data-panel="dashboard">
+            <i class="fas fa-th-large"></i>
+            <span>Dashboard</span>
+          </div>
+          <div class="nav-item" data-panel="goals">
+            <i class="fas fa-bullseye"></i>
+            <span>Saving Goals</span>
+            <span class="badge" id="goalsCount">0</span>
+          </div>
+          <div class="nav-item" data-panel="transactions">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Transactions</span>
+          </div>
+          <div class="nav-item" data-panel="analytics">
+            <i class="fas fa-chart-line"></i>
+            <span>Analytics</span>
+          </div>
+
+          <div class="nav-label" style="margin-top: 24px">Tools</div>
+          <div class="nav-item" onclick="openConverterModal()">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Currency Converter</span>
+          </div>
+          <div class="nav-item" onclick="openBudgetCalculator()">
+            <i class="fas fa-calculator"></i>
+            <span>Budget Calculator</span>
+          </div>
+          <div class="nav-item" onclick="exportData()">
+            <i class="fas fa-download"></i>
+            <span>Export Data</span>
+          </div>
+          <div class="nav-item" onclick="resetApp()">
+            <i class="fas fa-redo"></i>
+            <span>Reset App</span>
+          </div>
+        </nav>
+
+        <div class="savings-summary">
+          <div class="summary-card">
+            <div class="summary-label">Total Savings</div>
+            <div class="summary-amount" id="sidebarTotal">0.00</div>
+            <div class="summary-currency" id="sidebarCurrency">USD</div>
+            <div class="summary-stats">
+              <div class="summary-stat">
+                <div class="summary-stat-value" id="sidebarMonthly">0</div>
+                <div class="summary-stat-label">This Month</div>
+              </div>
+              <div class="summary-stat">
+                <div class="summary-stat-value" id="sidebarGoals">0</div>
+                <div class="summary-stat-label">Active Goals</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+          <div class="header-left">
+            <button class="mobile-menu-btn" onclick="toggleSidebar()">
+              <i class="fas fa-bars"></i>
+            </button>
+            <div class="header-title">
+              <h1>
+                <span class="greeting-emoji" id="greetingEmoji">👋</span>
+                <span id="greetingText">Good Morning!</span>
+              </h1>
+              <p id="currentDate">Loading...</p>
+            </div>
+          </div>
+          <div class="header-actions">
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input
+                type="text"
+                placeholder="Search transactions..."
+                id="searchInput"
+                oninput="searchTransactions()"
+              />
+            </div>
+            <button
+              class="btn btn-icon btn-secondary"
+              onclick="openConverterModal()"
+              title="Currency Converter"
+            >
+              <i class="fas fa-exchange-alt"></i>
+            </button>
+            <button class="btn btn-success" onclick="openIncomeModal()">
+              <i class="fas fa-plus"></i> Income
+            </button>
+            <button
+              class="btn btn-primary"
+              onclick="openTransactionModal('saving')"
+            >
+              <i class="fas fa-piggy-bank"></i> Save
+            </button>
+            <button class="btn btn-danger" onclick="openSpendModal()">
+              <i class="fas fa-shopping-cart"></i> Spend
+            </button>
+          </div>
+        </header>
+
+        <div class="content-area">
+          <!-- Dashboard Panel -->
+          <div class="dashboard-panel" id="dashboardPanel">
+            <!-- Welcome Banner -->
+            <div class="welcome-banner">
+              <div class="welcome-content">
+                <h2 class="welcome-title" id="welcomeTitle">
+                  Keep up the great work! 🎉
+                </h2>
+                <p class="welcome-text" id="welcomeText">
+                  You're making excellent progress on your savings journey. Your
+                  AI assistant is here to help you reach your financial goals
+                  faster.
+                </p>
+                <div class="welcome-stats">
+                  <div class="welcome-stat">
+                    <div class="welcome-stat-value" id="welcomeSavingsRate">
+                      0%
+                    </div>
+                    <div class="welcome-stat-label">Savings Rate</div>
+                  </div>
+                  <div class="welcome-stat">
+                    <div class="welcome-stat-value" id="welcomeStreak">
+                      0 days
+                    </div>
+                    <div class="welcome-stat-label">Saving Streak</div>
+                  </div>
+                  <div class="welcome-stat">
+                    <div class="welcome-stat-value" id="welcomeGoalsProgress">
+                      0%
+                    </div>
+                    <div class="welcome-stat-label">Goals Progress</div>
+                  </div>
+                </div>
+              </div>
+              <div class="welcome-illustration">
+                <div class="floating-coin coin-1">💰</div>
+                <div class="floating-coin coin-2">💵</div>
+                <div class="floating-coin coin-3">🪙</div>
+              </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+              <div class="quick-action" onclick="openIncomeModal()">
+                <div class="quick-action-icon green">
+                  <i class="fas fa-arrow-down"></i>
+                </div>
+                <div class="quick-action-content">
+                  <h3>Add Income</h3>
+                  <p>Record earnings in any currency</p>
+                </div>
+              </div>
+              <div
+                class="quick-action"
+                onclick="openTransactionModal('saving')"
+              >
+                <div class="quick-action-icon purple">
+                  <i class="fas fa-piggy-bank"></i>
+                </div>
+                <div class="quick-action-content">
+                  <h3>Add Savings</h3>
+                  <p>Grow your wealth</p>
+                </div>
+              </div>
+              <div class="quick-action" onclick="openGoalModal()">
+                <div class="quick-action-icon blue">
+                  <i class="fas fa-bullseye"></i>
+                </div>
+                <div class="quick-action-content">
+                  <h3>New Goal</h3>
+                  <p>Set a savings target</p>
+                </div>
+              </div>
+              <div class="quick-action" onclick="openSpendModal()">
+                <div class="quick-action-icon orange">
+                  <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="quick-action-content">
+                  <h3>Spend Money</h3>
+                  <p>Track your expenses</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-header">
+                  <div class="stat-icon purple">
+                    <i class="fas fa-wallet"></i>
+                  </div>
+                  <span class="stat-trend up" id="savingsTrend">
+                    <i class="fas fa-arrow-up"></i> +0%
+                  </span>
+                </div>
+                <div class="stat-value" id="totalSavings">0.00</div>
+                <div class="stat-label">Total Savings</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-header">
+                  <div class="stat-icon green">
+                    <i class="fas fa-arrow-down"></i>
+                  </div>
+                  <span class="stat-trend up" id="incomeTrend">
+                    <i class="fas fa-arrow-up"></i> +0%
+                  </span>
+                </div>
+                <div class="stat-value" id="monthlyIncome">0.00</div>
+                <div class="stat-label">Monthly Income</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-header">
+                  <div class="stat-icon blue">
+                    <i class="fas fa-piggy-bank"></i>
+                  </div>
+                  <span class="stat-trend up" id="savedTrend">
+                    <i class="fas fa-arrow-up"></i> +0%
+                  </span>
+                </div>
+                <div class="stat-value" id="monthlySaved">0.00</div>
+                <div class="stat-label">Saved This Month</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-header">
+                  <div class="stat-icon orange">
+                    <i class="fas fa-percentage"></i>
+                  </div>
+                </div>
+                <div class="stat-value" id="savingsRate">0%</div>
+                <div class="stat-label">Savings Rate</div>
+              </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-section">
+              <div class="chart-card">
+                <div class="chart-header">
+                  <span class="chart-title">📈 Savings Over Time</span>
+                  <div class="chart-period">
+                    <button
+                      class="chart-period-btn active"
+                      onclick="setChartPeriod('week')"
+                    >
+                      Week
+                    </button>
+                    <button
+                      class="chart-period-btn"
+                      onclick="setChartPeriod('month')"
+                    >
+                      Month
+                    </button>
+                    <button
+                      class="chart-period-btn"
+                      onclick="setChartPeriod('year')"
+                    >
+                      Year
+                    </button>
+                  </div>
+                </div>
+                <div class="chart-container">
+                  <canvas id="savingsChart"></canvas>
+                </div>
+              </div>
+              <div class="chart-card">
+                <div class="chart-header">
+                  <span class="chart-title"
+                    >📊 Income vs Savings vs Expenses</span
+                  >
+                </div>
+                <div class="chart-container">
+                  <canvas id="comparisonChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Goals Section -->
+            <div class="section-header">
+              <span class="section-title">
+                <span class="icon">🎯</span>
+                Saving Goals
+              </span>
+              <button class="btn btn-secondary" onclick="openGoalModal()">
+                <i class="fas fa-plus"></i> New Goal
+              </button>
+            </div>
+
+            <div class="goals-grid" id="goalsGrid">
+              <!-- Goals rendered here -->
+            </div>
+
+            <!-- Transactions Section -->
+            <div class="section-header">
+              <span class="section-title">
+                <span class="icon">📋</span>
+                Recent Transactions
+              </span>
+              <button class="btn btn-secondary" onclick="showAllTransactions()">
+                View All <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+
+            <div class="transactions-section">
+              <div class="transactions-header">
+                <div class="transactions-tabs">
+                  <button
+                    class="transaction-tab active"
+                    onclick="filterTransactions('all')"
+                  >
+                    All
+                  </button>
+                  <button
+                    class="transaction-tab"
+                    onclick="filterTransactions('income')"
+                  >
+                    Income
+                  </button>
+                  <button
+                    class="transaction-tab"
+                    onclick="filterTransactions('saving')"
+                  >
+                    Savings
+                  </button>
+                  <button
+                    class="transaction-tab"
+                    onclick="filterTransactions('expense')"
+                  >
+                    Expenses
+                  </button>
+                </div>
+              </div>
+              <div class="transaction-list" id="transactionList">
+                <!-- Transactions rendered here -->
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Chat Panel -->
+          <div class="ai-panel" id="aiPanel">
+            <div class="ai-header">
+              <div class="ai-avatar">
+                <i class="fas fa-robot"></i>
+              </div>
+              <div class="ai-info">
+                <h3>SaveAI Assistant</h3>
+                <p><span class="status-dot"></span> Online & Ready</p>
+              </div>
+              <button class="ai-close-btn" onclick="toggleAIPanel()">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+
+            <div class="ai-messages" id="chatMessages">
+              <!-- Messages rendered here -->
+            </div>
+
+            <div class="ai-suggestions" id="aiSuggestions">
+              <span
+                class="suggestion-chip"
+                onclick="sendSuggestion('What is my savings summary?')"
+                >📊 My Summary</span
+              >
+              <span
+                class="suggestion-chip"
+                onclick="sendSuggestion('How much should I save?')"
+                >💡 Get Advice</span
+              >
+              <span
+                class="suggestion-chip"
+                onclick="sendSuggestion('Convert 100 EUR to PLN')"
+                >💱 Convert</span
+              >
+              <span
+                class="suggestion-chip"
+                onclick="sendSuggestion('Give me a savings tip')"
+                >✨ Tips</span
+              >
+            </div>
+
+            <div class="ai-input-container">
+              <div class="ai-input-wrapper">
+                <input
+                  type="text"
+                  class="ai-input"
+                  id="aiInput"
+                  placeholder="Ask me anything about your savings..."
+                  onkeypress="handleKeyPress(event)"
+                />
+                <button class="ai-send-btn" onclick="sendMessage()">
+                  <i class="fas fa-paper-plane"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Mobile FAB -->
+    <button class="mobile-fab" onclick="toggleAIPanel()">
+      <i class="fas fa-robot"></i>
+    </button>
+
+    <!-- Goal Modal -->
+    <div class="modal-overlay" id="goalModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h2 class="modal-title">
+            <span class="modal-title-icon">🎯</span>
+            Create Saving Goal
+          </h2>
+          <button class="modal-close" onclick="closeGoalModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Goal Name</label>
+          <input
+            type="text"
+            class="form-input"
+            id="goalName"
+            placeholder="e.g., New iPhone, Dream Vacation, Emergency Fund"
+          />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label"
+              >Target Amount
+              <span class="form-hint" id="goalCurrencyHint">(USD)</span></label
+            >
+            <input
+              type="number"
+              class="form-input"
+              id="goalAmount"
+              placeholder="1000"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label"
+              >Deadline <span class="form-hint">(Optional)</span></label
+            >
+            <input type="date" class="form-input" id="goalDeadline" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Choose an Icon</label>
+          <div class="emoji-picker" id="emojiPicker">
+            <button class="emoji-option selected" data-emoji="🎯">🎯</button>
+            <button class="emoji-option" data-emoji="🏠">🏠</button>
+            <button class="emoji-option" data-emoji="🚗">🚗</button>
+            <button class="emoji-option" data-emoji="✈️">✈️</button>
+            <button class="emoji-option" data-emoji="📱">📱</button>
+            <button class="emoji-option" data-emoji="💻">💻</button>
+            <button class="emoji-option" data-emoji="🎮">🎮</button>
+            <button class="emoji-option" data-emoji="👕">👕</button>
+            <button class="emoji-option" data-emoji="💍">💍</button>
+            <button class="emoji-option" data-emoji="🎓">🎓</button>
+            <button class="emoji-option" data-emoji="🏥">🏥</button>
+            <button class="emoji-option" data-emoji="🎁">🎁</button>
+            <button class="emoji-option" data-emoji="💎">💎</button>
+            <button class="emoji-option" data-emoji="🏖️">🏖️</button>
+            <button class="emoji-option" data-emoji="🎸">🎸</button>
+            <button class="emoji-option" data-emoji="📚">📚</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Priority</label>
+          <div class="priority-options">
+            <div
+              class="priority-option"
+              data-priority="low"
+              onclick="selectPriority('low')"
+            >
+              <div class="priority-dot low"></div>
+              <div class="priority-label">Low</div>
+            </div>
+            <div
+              class="priority-option selected"
+              data-priority="medium"
+              onclick="selectPriority('medium')"
+            >
+              <div class="priority-dot medium"></div>
+              <div class="priority-label">Medium</div>
+            </div>
+            <div
+              class="priority-option"
+              data-priority="high"
+              onclick="selectPriority('high')"
+            >
+              <div class="priority-dot high"></div>
+              <div class="priority-label">High</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" onclick="closeGoalModal()">
+            Cancel
+          </button>
+          <button class="btn btn-primary" onclick="createGoal()">
+            <i class="fas fa-check"></i> Create Goal
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transaction Modal -->
+    <div class="modal-overlay" id="transactionModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h2 class="modal-title" id="transactionModalTitle">
+            <span class="modal-title-icon" id="transactionModalIcon">💰</span>
+            <span id="transactionModalTitleText">Add Transaction</span>
+          </h2>
+          <button class="modal-close" onclick="closeTransactionModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label"
+            >Amount
+            <span class="form-hint" id="transactionCurrencyHint"
+              >(USD)</span
+            ></label
+          >
+          <input
+            type="number"
+            class="form-input"
+            id="transactionAmount"
+            placeholder="100"
+            step="0.01"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <input
+            type="text"
+            class="form-input"
+            id="transactionDesc"
+            placeholder="e.g., Salary, Freelance work, Groceries"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select class="form-input" id="transactionCategory">
+            <option value="general">💰 General</option>
+            <option value="salary">💼 Salary</option>
+            <option value="freelance">💻 Freelance</option>
+            <option value="investment">📈 Investment</option>
+            <option value="gift">🎁 Gift</option>
+            <option value="other">📦 Other</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="goalSelectGroup" style="display: none">
+          <label class="form-label"
+            >Apply to Goal <span class="form-hint">(Optional)</span></label
+          >
+          <select class="form-input" id="goalSelect">
+            <option value="">No specific goal</option>
+          </select>
+        </div>
+
+        <input type="hidden" id="transactionType" value="saving" />
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" onclick="closeTransactionModal()">
+            Cancel
+          </button>
+          <button class="btn btn-primary" onclick="addTransaction()">
+            <i class="fas fa-check"></i> Add Transaction
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Money to Goal Modal -->
+    <div class="modal-overlay" id="addToGoalModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h2 class="modal-title">
+            <span class="modal-title-icon">💰</span>
+            Add to Goal
+          </h2>
+          <button class="modal-close" onclick="closeAddToGoalModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div id="addToGoalInfo" class="goal-info-box">
+          <!-- Goal info displayed here -->
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Amount to Add</label>
+          <input
+            type="number"
+            class="form-input"
+            id="addToGoalAmount"
+            placeholder="50"
+            step="0.01"
+          />
+        </div>
+
+        <input type="hidden" id="addToGoalId" value="" />
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" onclick="closeAddToGoalModal()">
+            Cancel
+          </button>
+          <button class="btn btn-success" onclick="addMoneyToGoal()">
+            <i class="fas fa-plus"></i> Add Money
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
