@@ -1,0 +1,925 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmygrysSave AI — Smart Finance Dashboard</title>
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#a855f7" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="SmygrysSave AI" />
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <input
+      type="file"
+      id="import-file-input"
+      style="display: none"
+      accept=".json"
+      onchange="App.handleImport(event)"
+    />
+
+    <!-- ONBOARDING -->
+    <div class="onboarding-overlay" id="onboarding-overlay">
+      <div class="onboarding-bg-effects">
+        <div class="ob-orb ob-orb-1"></div>
+        <div class="ob-orb ob-orb-2"></div>
+        <div class="ob-orb ob-orb-3"></div>
+      </div>
+      <div class="ob-card ob-step active" id="ob-step-1">
+        <div class="ob-dots">
+          <span class="ob-dot active"></span><span class="ob-dot"></span
+          ><span class="ob-dot"></span>
+        </div>
+        <div class="ob-icon-wrap">
+          <div class="ob-icon gradient-purple-pink">
+            <i class="fas fa-rocket"></i>
+          </div>
+        </div>
+        <h2 class="ob-title">Welcome to SmygrysSave AI!</h2>
+        <p class="ob-subtitle">
+          Your intelligent savings companion with multi-currency support.<br />Let's
+          set up your account in just a few steps.
+        </p>
+        <button
+          class="ob-btn ob-btn-primary ob-btn-wide"
+          onclick="Onboarding.next()"
+        >
+          Get Started <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+      <div class="ob-card ob-step" id="ob-step-2">
+        <div class="ob-dots">
+          <span class="ob-dot completed"></span
+          ><span class="ob-dot active"></span><span class="ob-dot"></span>
+        </div>
+        <div class="ob-icon-wrap">
+          <div class="ob-icon gradient-blue-cyan">
+            <i class="fas fa-exchange-alt"></i>
+          </div>
+        </div>
+        <h2 class="ob-title">Choose Your Currency</h2>
+        <p class="ob-subtitle">
+          Select your primary currency. You can add other currencies later.
+        </p>
+        <div class="ob-currency-grid">
+          <div
+            class="ob-currency-card"
+            data-currency="USD"
+            onclick="Onboarding.selectCurrency(this)"
+          >
+            <div class="ob-cur-flag">🇺🇸</div>
+            <div class="ob-cur-code">USD</div>
+            <div class="ob-cur-name">US Dollar</div>
+          </div>
+          <div
+            class="ob-currency-card"
+            data-currency="EUR"
+            onclick="Onboarding.selectCurrency(this)"
+          >
+            <div class="ob-cur-flag">🇪🇺</div>
+            <div class="ob-cur-code">EUR</div>
+            <div class="ob-cur-name">Euro</div>
+          </div>
+          <div
+            class="ob-currency-card selected"
+            data-currency="PLN"
+            onclick="Onboarding.selectCurrency(this)"
+          >
+            <div class="ob-cur-flag">🇵🇱</div>
+            <div class="ob-cur-code">PLN</div>
+            <div class="ob-cur-name">Polish Złoty</div>
+          </div>
+          <div
+            class="ob-currency-card"
+            data-currency="GBP"
+            onclick="Onboarding.selectCurrency(this)"
+          >
+            <div class="ob-cur-flag">🇬🇧</div>
+            <div class="ob-cur-code">GBP</div>
+            <div class="ob-cur-name">British Pound</div>
+          </div>
+        </div>
+        <div class="ob-btn-row">
+          <button class="ob-btn ob-btn-secondary" onclick="Onboarding.prev()">
+            <i class="fas fa-arrow-left"></i> Back
+          </button>
+          <button class="ob-btn ob-btn-primary" onclick="Onboarding.next()">
+            Continue <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+      <div class="ob-card ob-step" id="ob-step-3">
+        <div class="ob-dots">
+          <span class="ob-dot completed"></span
+          ><span class="ob-dot completed"></span
+          ><span class="ob-dot active"></span>
+        </div>
+        <div class="ob-icon-wrap">
+          <div class="ob-icon gradient-green-teal">
+            <i class="fas fa-sack-dollar"></i>
+          </div>
+        </div>
+        <h2 class="ob-title">Your Daily Income</h2>
+        <p class="ob-subtitle">
+          Tell us your average daily income for smart recommendations.
+        </p>
+        <div class="ob-form">
+          <div class="ob-field">
+            <label
+              >Daily Income (<span id="ob-income-currency">PLN</span>)</label
+            >
+            <div class="ob-input-wrap">
+              <i class="fas fa-coins"></i
+              ><input
+                type="number"
+                id="ob-daily-income"
+                placeholder="Enter your daily income..."
+              />
+            </div>
+          </div>
+          <div class="ob-field">
+            <label>Savings Goal (%)</label>
+            <div class="ob-slider-wrap">
+              <input
+                type="range"
+                id="ob-savings-slider"
+                min="5"
+                max="60"
+                value="20"
+                oninput="Onboarding.updateSlider()"
+              />
+              <div class="ob-slider-value" id="ob-slider-value">20%</div>
+            </div>
+            <div class="ob-slider-labels">
+              <span>5%</span><span>Conservative</span><span>Aggressive</span
+              ><span>60%</span>
+            </div>
+          </div>
+        </div>
+        <div class="ob-btn-row">
+          <button class="ob-btn ob-btn-secondary" onclick="Onboarding.prev()">
+            <i class="fas fa-arrow-left"></i> Back
+          </button>
+          <button
+            class="ob-btn ob-btn-success ob-btn-wide"
+            onclick="Onboarding.complete()"
+          >
+            <i class="fas fa-check"></i> Start Saving!
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div class="app" id="app" style="display: none">
+      <!-- LEFT SIDEBAR -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-scroll">
+          <div class="sidebar-header">
+            <div class="logo">
+              <div class="logo-icon"><i class="fas fa-brain"></i></div>
+              <div class="logo-text">
+                <span class="logo-main"
+                  >Smygrys<span class="logo-highlight">Save</span></span
+                ><span class="logo-badge">AI PRO</span>
+              </div>
+            </div>
+          </div>
+          <div class="sidebar-section cur-section">
+            <div class="section-label">Display Currency</div>
+            <div class="cur-btns" id="sidebar-cur-btns">
+              <button class="cur-btn" data-cur="USD">USD</button
+              ><button class="cur-btn" data-cur="EUR">EUR</button
+              ><button class="cur-btn active" data-cur="PLN">PLN</button
+              ><button class="cur-btn" data-cur="GBP">GBP</button
+              ><button class="cur-btn" data-cur="CHF">CHF</button>
+            </div>
+          </div>
+          <div class="sidebar-section">
+            <div class="section-label">Navigation</div>
+            <nav class="nav-list">
+              <a
+                class="nav-item active"
+                data-page="dashboard"
+                onclick="App.navigate('dashboard', this)"
+                ><i class="fas fa-th-large"></i><span>Dashboard</span></a
+              >
+              <a
+                class="nav-item"
+                data-page="goals"
+                onclick="App.navigate('goals', this)"
+                ><i class="fas fa-bullseye"></i><span>Saving Goals</span
+                ><span class="nav-badge" id="nav-goals-badge">0</span></a
+              >
+              <a
+                class="nav-item"
+                data-page="transactions"
+                onclick="App.navigate('transactions', this)"
+                ><i class="fas fa-receipt"></i><span>Transactions</span></a
+              >
+              <a
+                class="nav-item"
+                data-page="analytics"
+                onclick="App.navigate('analytics', this)"
+                ><i class="fas fa-chart-pie"></i><span>Analytics</span></a
+              >
+              <a
+                class="nav-item"
+                data-page="calendar"
+                onclick="App.navigate('calendar', this)"
+                ><i class="fas fa-calendar-alt"></i><span>Calendar</span></a
+              >
+            </nav>
+          </div>
+          <div class="sidebar-section">
+            <div class="section-label">Features</div>
+            <nav class="nav-list">
+              <a class="nav-item" onclick="App.openModal('wallets')"
+                ><i class="fas fa-wallet"></i><span>Wallets</span></a
+              >
+              <a class="nav-item" onclick="App.openModal('recurring')"
+                ><i class="fas fa-redo"></i><span>Recurring</span
+                ><span class="nav-badge purple" id="nav-rec-badge">0</span></a
+              >
+              <a class="nav-item" onclick="App.openModal('challenges')"
+                ><i class="fas fa-trophy"></i><span>Challenges</span></a
+              >
+              <a class="nav-item" onclick="App.openModal('wishlist')"
+                ><i class="fas fa-heart"></i><span>Wishlist</span></a
+              >
+              <a class="nav-item" onclick="App.openModal('achievements')"
+                ><i class="fas fa-medal"></i><span>Achievements</span></a
+              >
+              <a class="nav-item" onclick="App.openModal('networth')"
+                ><i class="fas fa-chart-line"></i><span>Net Worth</span></a
+              >
+              <a class="nav-item" onclick="App.openModal('investments')"
+                ><i class="fas fa-chart-bar"></i><span>Investments</span></a
+              >
+              <a class="nav-item" onclick="App.openModal('cards')"
+                ><i class="fas fa-credit-card"></i><span>Cards</span></a
+              >
+              <a class="nav-item" onclick="App.openModal('loans')"
+                ><i class="fas fa-hand-holding-usd"></i><span>Loans</span></a
+              >
+            </nav>
+          </div>
+          <div class="sidebar-section">
+            <div class="section-label">Tools</div>
+            <nav class="nav-list">
+              <a class="nav-item" onclick="App.openModal('converter')"
+                ><i class="fas fa-coins"></i><span>Currency Converter</span></a
+              >
+              <a class="nav-item" onclick="App.openModal('budgetCalc')"
+                ><i class="fas fa-calculator"></i
+                ><span>Budget Calculator</span></a
+              >
+              <a class="nav-item" onclick="App.openModal('reports')"
+                ><i class="fas fa-file-alt"></i><span>Reports</span></a
+              >
+              <a class="nav-item" onclick="App.openModal('predictions')"
+                ><i class="fas fa-brain"></i><span>Predictions</span></a
+              >
+              <a class="nav-item" onclick="App.openModal('settings')"
+                ><i class="fas fa-cog"></i><span>Settings</span></a
+              >
+              <a class="nav-item" onclick="App.exportData()"
+                ><i class="fas fa-download"></i><span>Export Data</span></a
+              >
+              <a
+                class="nav-item"
+                onclick="document.getElementById('import-file-input').click()"
+                ><i class="fas fa-upload"></i><span>Import Data</span></a
+              >
+            </nav>
+          </div>
+          <div class="sidebar-section">
+            <div class="section-label">System</div>
+            <nav class="nav-list">
+              <a class="nav-item nav-item-danger" onclick="App.resetApp()"
+                ><i class="fas fa-trash-alt"></i><span>Reset App</span></a
+              >
+            </nav>
+          </div>
+          <div class="sidebar-footer">
+            <div class="summary-card">
+              <div class="summary-card-title">
+                <i class="fas fa-chart-pie"></i> Quick Summary
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">Total Savings</span
+                ><span class="summary-value highlight" id="sb-total-savings"
+                  >0.00 PLN</span
+                >
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">Available</span
+                ><span class="summary-value" id="sb-available">0.00 PLN</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">Active Goals</span
+                ><span class="summary-value" id="sb-active-goals">0</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">Currencies</span
+                ><span class="summary-value" id="sb-currencies">0</span>
+              </div>
+              <div class="summary-row">
+                <span class="summary-label">Transactions</span
+                ><span class="summary-value" id="sb-transactions">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- MAIN CONTENT -->
+      <main class="main-content" id="main-content">
+        <div class="main-scroll" id="main-scroll">
+          <header class="top-bar">
+            <div class="top-left">
+              <button class="mobile-menu-btn" onclick="App.toggleSidebar()">
+                <i class="fas fa-bars"></i>
+              </button>
+              <div class="greeting-area">
+                <h1 id="greeting-text">Good Evening!</h1>
+                <p id="date-text"></p>
+              </div>
+            </div>
+            <div class="top-right">
+              <div class="search-box">
+                <i class="fas fa-search"></i
+                ><input
+                  type="text"
+                  placeholder="Search transactions, goals..."
+                  id="global-search"
+                  oninput="App.handleSearch(this.value)"
+                />
+              </div>
+              <div class="top-icons">
+                <button
+                  class="top-icon-btn"
+                  title="Notifications"
+                  onclick="App.openModal('notifications')"
+                >
+                  <i class="fas fa-bell"></i
+                  ><span class="notif-dot" id="notif-dot"></span>
+                </button>
+                <button
+                  class="top-icon-btn"
+                  title="Settings"
+                  onclick="App.openModal('settings')"
+                >
+                  <i class="fas fa-cog"></i>
+                </button>
+                <button
+                  class="top-icon-btn reset-btn"
+                  title="Reset App"
+                  onclick="App.resetApp()"
+                >
+                  <i class="fas fa-undo-alt"></i>
+                </button>
+              </div>
+              <div class="top-actions">
+                <button
+                  class="action-btn success"
+                  onclick="App.openModal('income')"
+                >
+                  <i class="fas fa-plus"></i><span>Add Income</span>
+                </button>
+                <button
+                  class="action-btn purple"
+                  onclick="App.openModal('save')"
+                >
+                  <i class="fas fa-piggy-bank"></i><span>Save</span>
+                </button>
+                <button
+                  class="action-btn danger"
+                  onclick="App.openModal('spend')"
+                >
+                  <i class="fas fa-shopping-cart"></i><span>Spend</span>
+                </button>
+                <button
+                  class="action-btn info"
+                  onclick="App.openModal('exchange')"
+                >
+                  <i class="fas fa-exchange-alt"></i><span>Exchange</span>
+                </button>
+                <button
+                  class="action-btn warning"
+                  onclick="App.openModal('transfer')"
+                >
+                  <i class="fas fa-paper-plane"></i><span>Transfer</span>
+                </button>
+              </div>
+            </div>
+          </header>
+
+          <!-- PAGE: DASHBOARD -->
+          <section class="hero fade-in page-section" data-pages="dashboard">
+            <div class="hero-bg-effects">
+              <div class="hero-orb hero-orb-1"></div>
+              <div class="hero-orb hero-orb-2"></div>
+            </div>
+            <div class="hero-content">
+              <div class="hero-text">
+                <h2 id="hero-heading">Welcome! Let's build your finances 💰</h2>
+                <p id="hero-subtitle">
+                  Start by adding accounts, recording income, and setting
+                  savings goals.
+                </p>
+              </div>
+              <div class="hero-stats">
+                <div class="hero-stat">
+                  <div class="hero-stat-label">Total Balance</div>
+                  <div class="hero-stat-value" id="hero-balance">0.00 PLN</div>
+                </div>
+                <div class="hero-stat">
+                  <div class="hero-stat-label">Total Income</div>
+                  <div class="hero-stat-value" id="hero-income">0.00 PLN</div>
+                </div>
+                <div class="hero-stat">
+                  <div class="hero-stat-label">Total Expenses</div>
+                  <div class="hero-stat-value" id="hero-expenses">0.00 PLN</div>
+                </div>
+                <div class="hero-stat">
+                  <div class="hero-stat-label">Savings Rate</div>
+                  <div class="hero-stat-value" id="hero-savings-rate">0%</div>
+                </div>
+              </div>
+            </div>
+            <div class="hero-float-icons">
+              <i class="fas fa-wallet"></i><i class="fas fa-money-bill-wave"></i
+              ><i class="fas fa-coins"></i><i class="fas fa-chart-area"></i
+              ><i class="fas fa-university"></i>
+            </div>
+          </section>
+
+          <section
+            class="content-section fade-in page-section"
+            data-pages="dashboard"
+            style="animation-delay: 0.1s"
+          >
+            <div class="section-header">
+              <h3><i class="fas fa-university"></i> Multi-Currency Accounts</h3>
+              <div class="section-actions">
+                <button
+                  class="action-btn info small"
+                  onclick="App.openModal('exchange')"
+                >
+                  <i class="fas fa-exchange-alt"></i><span>Exchange</span>
+                </button>
+                <button
+                  class="action-btn small"
+                  onclick="App.openModal('transfer')"
+                >
+                  <i class="fas fa-paper-plane"></i><span>Transfer</span>
+                </button>
+                <button
+                  class="action-btn purple small"
+                  onclick="App.openModal('addAccount')"
+                >
+                  <i class="fas fa-plus"></i><span>Add Account</span>
+                </button>
+              </div>
+            </div>
+            <div class="accounts-carousel" id="accounts-container"></div>
+          </section>
+
+          <section
+            class="content-section fade-in page-section"
+            data-pages="dashboard"
+            style="animation-delay: 0.15s"
+          >
+            <div class="section-header">
+              <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+            </div>
+            <div class="quick-actions-grid">
+              <div class="quick-card" onclick="App.openModal('income')">
+                <div class="qc-icon green">
+                  <i class="fas fa-plus-circle"></i>
+                </div>
+                <h4>Add Income</h4>
+                <p>Record earnings</p>
+              </div>
+              <div class="quick-card" onclick="App.openModal('save')">
+                <div class="qc-icon purple">
+                  <i class="fas fa-piggy-bank"></i>
+                </div>
+                <h4>Add Savings</h4>
+                <p>Grow wealth</p>
+              </div>
+              <div class="quick-card" onclick="App.openModal('goal')">
+                <div class="qc-icon blue"><i class="fas fa-bullseye"></i></div>
+                <h4>New Goal</h4>
+                <p>Set a target</p>
+              </div>
+              <div class="quick-card" onclick="App.openModal('spend')">
+                <div class="qc-icon red">
+                  <i class="fas fa-shopping-bag"></i>
+                </div>
+                <h4>Spend Money</h4>
+                <p>Log expense</p>
+              </div>
+              <div class="quick-card" onclick="App.openModal('exchange')">
+                <div class="qc-icon cyan">
+                  <i class="fas fa-exchange-alt"></i>
+                </div>
+                <h4>Exchange</h4>
+                <p>Convert currencies</p>
+              </div>
+              <div class="quick-card" onclick="App.openModal('addAccount')">
+                <div class="qc-icon orange"><i class="fas fa-wallet"></i></div>
+                <h4>Add Account</h4>
+                <p>New currency</p>
+              </div>
+            </div>
+          </section>
+
+          <section
+            class="content-section fade-in page-section"
+            data-pages="dashboard,analytics"
+            style="animation-delay: 0.2s"
+          >
+            <div class="section-header">
+              <h3><i class="fas fa-chart-bar"></i> Financial Overview</h3>
+            </div>
+            <div class="stats-grid" id="stats-container"></div>
+          </section>
+
+          <section
+            class="content-section fade-in page-section"
+            data-pages="dashboard,analytics"
+            style="animation-delay: 0.25s"
+          >
+            <div class="section-header">
+              <h3><i class="fas fa-chart-line"></i> Analytics</h3>
+            </div>
+            <div class="charts-grid">
+              <div class="chart-card chart-wide">
+                <div class="chart-card-header"><h4>Balance Over Time</h4></div>
+                <div class="chart-wrap" style="height: 260px">
+                  <canvas id="savingsChart"></canvas>
+                </div>
+              </div>
+              <div class="chart-card">
+                <div class="chart-card-header"><h4>Income vs Expenses</h4></div>
+                <div class="chart-wrap" style="height: 220px">
+                  <canvas id="donutChart"></canvas>
+                </div>
+              </div>
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <h4>Currency Allocation</h4>
+                </div>
+                <div class="chart-wrap" style="height: 220px">
+                  <canvas id="currencyChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section
+            class="content-section fade-in page-section"
+            data-pages="dashboard"
+          >
+            <div class="exchange-widget">
+              <div class="section-header">
+                <h3><i class="fas fa-sync-alt"></i> Currency Exchange</h3>
+              </div>
+              <div class="exchange-form">
+                <div class="ex-field">
+                  <label>From</label
+                  ><input
+                    type="number"
+                    id="ex-from-amt"
+                    value="100"
+                    oninput="App.calcExchange()"
+                  />
+                </div>
+                <div class="ex-field">
+                  <label>Currency</label
+                  ><select id="ex-from-cur" onchange="App.calcExchange()">
+                    <option value="PLN" selected>PLN</option>
+                    <option value="EUR">EUR</option>
+                    <option value="USD">USD</option>
+                    <option value="GBP">GBP</option>
+                    <option value="CHF">CHF</option>
+                  </select>
+                </div>
+                <button class="ex-swap" onclick="App.swapExchange()">
+                  <i class="fas fa-exchange-alt"></i>
+                </button>
+                <div class="ex-field">
+                  <label>To</label
+                  ><input type="number" id="ex-to-amt" readonly />
+                </div>
+                <div class="ex-field">
+                  <label>Currency</label
+                  ><select id="ex-to-cur" onchange="App.calcExchange()">
+                    <option value="EUR" selected>EUR</option>
+                    <option value="PLN">PLN</option>
+                    <option value="USD">USD</option>
+                    <option value="GBP">GBP</option>
+                    <option value="CHF">CHF</option>
+                  </select>
+                </div>
+                <button class="btn btn-gradient" onclick="App.execExchange()">
+                  Exchange Now
+                </button>
+              </div>
+              <div class="ex-rate-info" id="ex-rate-info"></div>
+            </div>
+          </section>
+
+          <section
+            class="content-section fade-in page-section"
+            data-pages="dashboard,goals"
+          >
+            <div class="section-header">
+              <h3><i class="fas fa-bullseye"></i> Savings Goals</h3>
+              <div class="section-actions">
+                <button
+                  class="action-btn purple small"
+                  onclick="App.openModal('goal')"
+                >
+                  <i class="fas fa-plus"></i><span>New Goal</span>
+                </button>
+              </div>
+            </div>
+            <div class="goals-grid" id="goals-container"></div>
+          </section>
+
+          <section
+            class="content-section fade-in page-section"
+            data-pages="dashboard,transactions"
+          >
+            <div class="section-header">
+              <h3><i class="fas fa-receipt"></i> Transactions</h3>
+              <span
+                class="see-all-link"
+                onclick="
+                  App.navigate(
+                    'transactions',
+                    document.querySelector('[data-page=transactions]'),
+                  )
+                "
+                >View All →</span
+              >
+            </div>
+            <div class="transactions-panel">
+              <div class="tx-tabs-bar">
+                <div class="tx-tabs" id="tx-tabs">
+                  <button class="tx-tab active" data-filter="all">All</button>
+                  <button class="tx-tab" data-filter="income">Income</button>
+                  <button class="tx-tab" data-filter="savings">Savings</button>
+                  <button class="tx-tab" data-filter="expense">Expenses</button>
+                  <button class="tx-tab" data-filter="exchange">
+                    Exchange
+                  </button>
+                  <button class="tx-tab" data-filter="transfer">
+                    Transfers
+                  </button>
+                </div>
+              </div>
+              <div class="tx-list" id="tx-container"></div>
+            </div>
+          </section>
+
+          <!-- CALENDAR PAGE -->
+          <section
+            class="content-section page-section"
+            data-pages="calendar"
+            style="display: none"
+          >
+            <div class="section-header">
+              <h3><i class="fas fa-calendar-alt"></i> Calendar</h3>
+              <div class="section-actions">
+                <button class="action-btn small" onclick="App.calendarPrev()">
+                  <i class="fas fa-chevron-left"></i>
+                </button>
+                <span
+                  id="calendar-month-label"
+                  style="font-weight: 700; font-size: 14px; padding: 0 8px"
+                ></span>
+                <button class="action-btn small" onclick="App.calendarNext()">
+                  <i class="fas fa-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+            <div class="calendar-grid" id="calendar-grid"></div>
+            <div id="calendar-day-transactions" style="margin-top: 16px"></div>
+          </section>
+
+          <!-- SEARCH RESULTS -->
+          <section
+            class="content-section page-section"
+            data-pages="search"
+            style="display: none"
+          >
+            <div class="section-header">
+              <h3><i class="fas fa-search"></i> Search Results</h3>
+              <span
+                class="see-all-link"
+                onclick="
+                  App.navigate(
+                    'dashboard',
+                    document.querySelector('[data-page=dashboard]'),
+                  )
+                "
+                >← Back</span
+              >
+            </div>
+            <div class="transactions-panel">
+              <div class="tx-list" id="search-results"></div>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <!-- RIGHT PANEL -->
+      <aside class="right-panel" id="right-panel">
+        <div class="rp-scroll">
+          <div class="ai-header">
+            <div class="ai-identity">
+              <div class="ai-avatar">
+                <i class="fas fa-robot"></i><span class="ai-status-dot"></span>
+              </div>
+              <div class="ai-meta">
+                <h3>Smygrys AI</h3>
+                <p class="ai-status">
+                  <span class="status-dot-inline"></span> Online
+                </p>
+              </div>
+            </div>
+            <div class="ai-chips">
+              <button class="ai-chip" onclick="AI.action('summary')">
+                Summary
+              </button>
+              <button class="ai-chip" onclick="AI.action('tips')">Tips</button>
+              <button class="ai-chip" onclick="AI.action('analyze')">
+                Analyze
+              </button>
+              <button class="ai-chip" onclick="AI.action('budget')">
+                Budget
+              </button>
+              <button class="ai-chip" onclick="AI.action('exchange')">
+                Exchange
+              </button>
+              <button class="ai-chip" onclick="AI.action('goalplan')">
+                Goal Plan
+              </button>
+            </div>
+          </div>
+          <div class="ai-chat" id="ai-chat"></div>
+          <div class="rp-widget">
+            <h4><i class="fas fa-chart-line"></i> Live Exchange Rates</h4>
+            <div class="rates-list" id="rates-list"></div>
+          </div>
+          <div class="rp-widget">
+            <h4><i class="fas fa-chart-area"></i> Rate Trends</h4>
+            <div class="chart-wrap" style="height: 130px">
+              <canvas id="rateChart"></canvas>
+            </div>
+          </div>
+          <div class="ai-input-bar">
+            <input
+              type="text"
+              id="ai-input"
+              placeholder="Ask Smygrys AI..."
+              onkeypress="if (event.key === 'Enter') AI.send();"
+            />
+            <button class="ai-send-btn" onclick="AI.send()">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- MODAL -->
+    <div
+      class="modal-backdrop"
+      id="modal-backdrop"
+      onclick="App.closeModal(event)"
+    >
+      <div class="modal-card" id="modal-card"></div>
+    </div>
+    <!-- RESET MODAL -->
+    <div
+      class="modal-backdrop"
+      id="reset-modal"
+      onclick="App.closeResetModal(event)"
+    >
+      <div class="modal-card reset-confirm-card">
+        <div class="reset-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3>Reset Everything?</h3>
+        <p class="reset-desc">
+          This will permanently delete all data and return to onboarding.
+        </p>
+        <div class="reset-data-preview" id="reset-data-preview"></div>
+        <div class="form-actions">
+          <button class="btn btn-danger" onclick="App.confirmReset()">
+            <i class="fas fa-trash-alt"></i> Yes, Reset</button
+          ><button
+            class="btn btn-secondary"
+            onclick="App.closeResetModalDirect()"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+    <script src="data.js"></script>
+    <script src="ai.js"></script>
+    <script src="features.js"></script>
+    <script src="app.js"></script>
+    <!-- Service Worker Registration -->
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("/sw.js", { scope: "/" })
+            .then((reg) => {
+              console.log("[App] SW registered, scope:", reg.scope);
+
+              // Check for updates every 30 minutes
+              setInterval(
+                () => {
+                  reg.update();
+                },
+                30 * 60 * 1000,
+              );
+
+              // Handle updates
+              reg.addEventListener("updatefound", () => {
+                const newWorker = reg.installing;
+                newWorker.addEventListener("statechange", () => {
+                  if (
+                    newWorker.state === "installed" &&
+                    navigator.serviceWorker.controller
+                  ) {
+                    // New version available
+                    if (
+                      confirm(
+                        "SmygrysSave AI has been updated! Reload to get the latest version?",
+                      )
+                    ) {
+                      newWorker.postMessage({ type: "SKIP_WAITING" });
+                      window.location.reload();
+                    }
+                  }
+                });
+              });
+            })
+            .catch((err) => console.warn("[App] SW registration failed:", err));
+
+          // Handle shortcut actions from manifest
+          const params = new URLSearchParams(window.location.search);
+          const action = params.get("action");
+          if (action) {
+            window.addEventListener("DOMContentLoaded", () => {
+              setTimeout(() => {
+                switch (action) {
+                  case "income":
+                    App.openModal("income");
+                    break;
+                  case "spend":
+                    App.openModal("spend");
+                    break;
+                  case "goals":
+                    App.handleNav("goals");
+                    break;
+                  case "exchange":
+                    document
+                      .querySelector(".exchange-widget")
+                      ?.scrollIntoView({ behavior: "smooth" });
+                    break;
+                }
+              }, 1000);
+            });
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
