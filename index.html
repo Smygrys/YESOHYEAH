@@ -6,15 +6,16 @@
     <title>SmygrysSave AI — Smart Finance Dashboard</title>
 
     <!-- PWA -->
-    <link rel="manifest" href="manifest.json" />
-    <meta name="theme-color" content="#a855f7" />
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#a855f7">
+
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta
       name="apple-mobile-web-app-status-bar-style"
       content="black-translucent"
     />
     <meta name="apple-mobile-web-app-title" content="SmygrysSave AI" />
-    <link rel="apple-touch-icon" href="icons/icon-192x192.png" />
+<link rel="apple-touch-icon" href="./icons/icon-192x192.png">
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
       rel="stylesheet"
@@ -854,72 +855,55 @@
     <script src="features.js"></script>
     <script src="app.js"></script>
     <!-- Service Worker Registration -->
-    <script>
-      if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () => {
-          navigator.serviceWorker
-            .register("/sw.js", { scope: "/" })
-            .then((reg) => {
-              console.log("[App] SW registered, scope:", reg.scope);
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker
+        .register("./sw.js", {
+          scope: "./"
+        })
+        .then((reg) => {
+          console.log("[App] SW registered, scope:", reg.scope);
 
-              // Check for updates every 30 minutes
-              setInterval(
-                () => {
-                  reg.update();
-                },
-                30 * 60 * 1000,
-              );
+          // Check for updates every 30 minutes
+          setInterval(() => {
+            reg.update();
+          }, 30 * 60 * 1000);
 
-              // Handle updates
-              reg.addEventListener("updatefound", () => {
-                const newWorker = reg.installing;
-                newWorker.addEventListener("statechange", () => {
-                  if (
-                    newWorker.state === "installed" &&
-                    navigator.serviceWorker.controller
-                  ) {
-                    // New version available
-                    if (
-                      confirm(
-                        "SmygrysSave AI has been updated! Reload to get the latest version?",
-                      )
-                    ) {
-                      newWorker.postMessage({ type: "SKIP_WAITING" });
-                      window.location.reload();
-                    }
-                  }
-                });
-              });
-            })
-            .catch((err) => console.warn("[App] SW registration failed:", err));
+          // Handle updates
+          reg.addEventListener("updatefound", () => {
+            const newWorker = reg.installing;
 
-          // Handle shortcut actions from manifest
-          const params = new URLSearchParams(window.location.search);
-          const action = params.get("action");
-          if (action) {
-            window.addEventListener("DOMContentLoaded", () => {
-              setTimeout(() => {
-                switch (action) {
-                  case "income":
-                    App.openModal("income");
-                    break;
-                  case "spend":
-                    App.openModal("spend");
-                    break;
-                  case "goals":
-                    App.handleNav("goals");
-                    break;
-                  case "exchange":
-                    document
-                      .querySelector(".exchange-widget")
-                      ?.scrollIntoView({ behavior: "smooth" });
-                    break;
+            if (!newWorker) return;
+
+            newWorker.addEventListener("statechange", () => {
+              if (
+                newWorker.state === "installed" &&
+                navigator.serviceWorker.controller
+              ) {
+                const shouldReload = confirm(
+                  "SmygrysSave AI has been updated! Reload to get the latest version?"
+                );
+
+                if (shouldReload) {
+                  newWorker.postMessage({
+                    type: "SKIP_WAITING"
+                  });
+
+                  window.location.reload();
                 }
-              }, 1000);
+              }
             });
-          }
+          });
+        })
+        .catch((err) => {
+          console.warn(
+            "[App] Service Worker registration failed:",
+            err
+          );
         });
-      }
-    </script>
+    });
+  }
+</script>
   </body>
 </html>
