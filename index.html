@@ -181,7 +181,6 @@
             <i class="fas fa-robot"></i>
           </div>
           <span class="logo-text">SaveAI</span>
-          <span class="logo-badge">PRO</span>
         </div>
 
         <div class="currency-selector">
@@ -245,18 +244,6 @@
     <i class="fas fa-exchange-alt"></i>
     <span data-i18n="converter">Currency Converter</span>
   </div>
-  <div class="nav-item" onclick="openBudgetCalculator()">
-    <i class="fas fa-calculator"></i>
-    <span data-i18n="budgetCalc">Budget Calculator</span>
-  </div>
-  <div class="nav-item" onclick="generateReport()">
-    <i class="fas fa-file-pdf"></i>
-    <span data-i18n="reports">Reports</span>
-  </div>
-  <!-- <div class="nav-item" onclick="openPredictionsModal()">
-    <i class="fas fa-crystal-ball"></i>
-    <span data-i18n="predictions">Predictions</span>
-  </div> -->
   <div class="nav-item" onclick="openSettingsModal()">
     <i class="fas fa-cog"></i>
     <span data-i18n="settings">Settings</span>
@@ -274,24 +261,6 @@
     <span data-i18n="reset">Reset App</span>
   </div>
 </nav>
-
-        <!-- <div class="savings-summary">
-          <div class="summary-card">
-            <div class="summary-label">Total Savings</div>
-            <div class="summary-amount" id="sidebarTotal">0.00</div>
-            <div class="summary-currency" id="sidebarCurrency">USD</div>
-            <div class="summary-stats">
-              <div class="summary-stat">
-                <div class="summary-stat-value" id="sidebarAvailable">0</div>
-                <div class="summary-stat-label">Available</div>
-              </div>
-              <div class="summary-stat">
-                <div class="summary-stat-value" id="sidebarGoals">0</div>
-                <div class="summary-stat-label">Active Goals</div>
-              </div>
-            </div>
-          </div>
-        </div> -->
       </aside>
 
       <!-- Main Content -->
@@ -584,18 +553,12 @@
 </div>
 
 
-
-    <!-- Mobile FAB -->
-    <button class="mobile-fab" onclick="toggleAIPanel()">
-      <i class="fas fa-robot"></i>
-    </button>
-
     <!-- Sidebar Overlay -->
     <div
       class="sidebar-overlay"
       id="sidebarOverlay"
       onclick="toggleSidebar()"
-    ></div>
+    ></div> 
 
     <!-- AI Overlay -->
     <div class="ai-overlay" id="aiOverlay" onclick="toggleAIPanel()"></div>
@@ -1271,9 +1234,6 @@
           <button class="btn btn-secondary" onclick="closeConverterModal()">
             Close
           </button>
-          <button class="btn btn-primary" onclick="addConvertedAsIncome()">
-            <i class="fas fa-plus"></i> Add as Income
-          </button>
         </div>
       </div>
     </div>
@@ -1745,9 +1705,6 @@
       <button class="settings-tab" onclick="showSettingsTab('notifications')">
         <i class="fas fa-bell"></i> <span data-i18n="notifications">Notifications</span>
       </button>
-      <button class="settings-tab" onclick="showSettingsTab('language')">
-        <i class="fas fa-language"></i> <span data-i18n="language">Language</span>
-      </button>
       <button class="settings-tab" onclick="showSettingsTab('data')">
         <i class="fas fa-database"></i> <span data-i18n="data">Data</span>
       </button>
@@ -1821,22 +1778,6 @@
         
         <div class="form-group">
           <label class="toggle-option">
-            <input type="checkbox" id="notifyBillReminders" checked>
-            <span class="toggle-slider"></span>
-            <span class="toggle-label" data-i18n="billReminders">Upcoming Bill Reminders</span>
-          </label>
-        </div>
-        
-        <div class="form-group">
-          <label class="toggle-option">
-            <input type="checkbox" id="notifyAchievements" checked>
-            <span class="toggle-slider"></span>
-            <span class="toggle-label" data-i18n="achievementUnlocks">Achievement Unlocks</span>
-          </label>
-        </div>
-        
-        <div class="form-group">
-          <label class="toggle-option">
             <input type="checkbox" id="notifyWeeklySummary">
             <span class="toggle-slider"></span>
             <span class="toggle-label" data-i18n="weeklySummary">Weekly Summary</span>
@@ -1847,60 +1788,6 @@
           <label class="form-label" data-i18n="reminderTime">Daily Reminder Time</label>
           <input type="time" class="form-input" id="notifyReminderTime" value="20:00">
         </div>
-      </div>
-    </div>
-    
-    <!-- Language Settings -->
-    <div class="settings-content" id="settingsLanguage" style="display: none;">
-      <div class="language-grid" id="languageGrid">
-        <button class="language-option active" data-lang="en" onclick="setLanguage('en')">
-          <span class="language-flag">🇺🇸</span>
-          <span class="language-name">English</span>
-        </button>
-        <button class="language-option" data-lang="pl" onclick="setLanguage('pl')">
-          <span class="language-flag">🇵🇱</span>
-          <span class="language-name">Polski</span>
-        </button>
-        <button class="language-option" data-lang="de" onclick="setLanguage('de')">
-          <span class="language-flag">🇩🇪</span>
-          <span class="language-name">Deutsch</span>
-        </button>
-        <button class="language-option" data-lang="es" onclick="setLanguage('es')">
-          <span class="language-flag">🇪🇸</span>
-          <span class="language-name">Español</span>
-        </button>
-        <button class="language-option" data-lang="fr" onclick="setLanguage('fr')">
-          <span class="language-flag">🇫🇷</span>
-          <span class="language-name">Français</span>
-        </button>
-        <button class="language-option" data-lang="it" onclick="setLanguage('it')">
-          <span class="language-flag">🇮🇹</span>
-          <span class="language-name">Italiano</span>
-        </button>
-        <button class="language-option" data-lang="pt" onclick="setLanguage('pt')">
-          <span class="language-flag">🇵🇹</span>
-          <span class="language-name">Português</span>
-        </button>
-        <button class="language-option" data-lang="ja" onclick="setLanguage('ja')">
-          <span class="language-flag">🇯🇵</span>
-          <span class="language-name">日本語</span>
-        </button>
-        <button class="language-option" data-lang="zh" onclick="setLanguage('zh')">
-          <span class="language-flag">🇨🇳</span>
-          <span class="language-name">中文</span>
-        </button>
-        <button class="language-option" data-lang="ko" onclick="setLanguage('ko')">
-          <span class="language-flag">🇰🇷</span>
-          <span class="language-name">한국어</span>
-        </button>
-        <button class="language-option" data-lang="ru" onclick="setLanguage('ru')">
-          <span class="language-flag">🇷🇺</span>
-          <span class="language-name">Русский</span>
-        </button>
-        <button class="language-option" data-lang="uk" onclick="setLanguage('uk')">
-          <span class="language-flag">🇺🇦</span>
-          <span class="language-name">Українська</span>
-        </button>
       </div>
     </div>
     
@@ -1950,14 +1837,6 @@
             <span data-i18n="reset">Reset</span>
           </button>
         </div>
-      </div>
-      
-      <div class="storage-info">
-        <h4 data-i18n="storageUsage">Storage Usage</h4>
-        <div class="storage-bar">
-          <div class="storage-bar-fill" id="storageBarFill" style="width: 0%"></div>
-        </div>
-        <p class="storage-text" id="storageText">Calculating...</p>
       </div>
     </div>
     
